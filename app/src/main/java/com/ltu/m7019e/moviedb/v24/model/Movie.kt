@@ -9,5 +9,5 @@ data class Movie(
     var overview: String,
     var genres: List<String>,
     var website: String? = null,
-    var imdb_id: String
+    var imdb_id: String,
 )

@@ -3,4 +3,7 @@
     <string name="movie_Detail">Movie Details</string>
     <string name="movie_Genre">Movie Genre</string>
     <string name="back_button">Back</string>
+    <string name="imdb_link">https://imdb.com/title/</string>
+    <string name="imdb">Go to IMDb Page</string>
+    <string name="official_Website">Official website(s): </string>
 </resources>

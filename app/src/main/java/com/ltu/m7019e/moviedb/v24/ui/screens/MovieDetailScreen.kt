@@ -1,20 +1,31 @@
 package com.ltu.m7019e.moviedb.v24.ui.screens
 
 import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -22,8 +33,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.ltu.m7019e.moviedb.v24.R
 import com.ltu.m7019e.moviedb.v24.model.Movie
 import com.ltu.m7019e.moviedb.v24.ui.theme.TheMovideDBV24Theme
+import com.ltu.m7019e.moviedb.v24.utils.Constants
 
 @Composable
 fun MovieDetailScreen(
@@ -32,14 +46,14 @@ fun MovieDetailScreen(
     modifier: Modifier = Modifier
 ) {
     Column {
-        /*Box {
+        Box {
             AsyncImage(
                 model = Constants.BACKDROP_IMAGE_BASE_URL + Constants.BACKDROP_IMAGE_WIDTH + movie.backdropPath,
                 contentDescription = movie.title,
                 modifier = modifier,
                 contentScale = ContentScale.Crop
             )
-        }*/
+        }
         Text(
             text = movie.title,
             style = MaterialTheme.typography.headlineSmall
@@ -58,16 +72,18 @@ fun MovieDetailScreen(
         )
         Spacer(modifier = Modifier.size(8.dp))
 
+        Divider(modifier = modifier.padding(horizontal=8.dp))
+
         MovieDetailGenre(
             movie.genres,
             onGenreListItemClicked
         )
 
-        val uriHandler = LocalUriHandler.current
+        Divider(modifier = modifier.padding(horizontal=8.dp))
 
-        Button(onClick = { uriHandler.openUri("https://imdb.com/title/" + movie.imdb_id) }) {
-            Text("IMDb")
-        }
+        MovieButtonIMDB(movie)
+
+        Divider(modifier = modifier.padding(horizontal=8.dp))
 
         val url = movie.website
 
@@ -75,6 +91,30 @@ fun MovieDetailScreen(
             MovieOfficialWebsite(url)
         }
     }
+}
+
+@Composable
+fun MovieButtonIMDB(
+    movie: Movie,
+    modifier: Modifier = Modifier
+) {
+    val uriHandler = LocalUriHandler.current
+    val movieURL = stringResource(R.string.imdb_link) + movie.imdb_id
+
+    Button(
+        onClick = { uriHandler.openUri(movieURL) },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = colorResource(R.color.imdb_yellow),
+            contentColor = Color.Black
+        ),
+        shape = RoundedCornerShape(10),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(stringResource(R.string.imdb))
+    }
+
 }
 
 @Composable
@@ -103,10 +143,8 @@ fun MovieOfficialWebsite(
     officialURL: String
 ) {
     val annotatedText = buildAnnotatedString {
-        append("Official website(s): ")
+        append(stringResource(R.string.official_Website) + " ")
 
-        // We attach this *URL* annotation to the following content
-        // until `pop()` is called
         pushStringAnnotation(
             tag = "URL",
             annotation = officialURL
@@ -116,9 +154,8 @@ fun MovieOfficialWebsite(
                 color = Color.Blue, fontWeight = FontWeight.Bold
             )
         ) {
-            append(officialURL
-                .substringAfter("//", "")
-                .substringBefore("/", ""))
+            val tmp = officialURL.substringAfter("//", "")
+            append(tmp.substringBefore("/", tmp))
         }
 
         pop()
@@ -127,16 +164,13 @@ fun MovieOfficialWebsite(
     val mUriHandler = LocalUriHandler.current
 
     ClickableText(text = annotatedText, onClick = { offset ->
-        // We check if there is an *URL* annotation attached to the text
-        // at the clicked position
         annotatedText.getStringAnnotations(
             tag = "URL", start = offset, end = offset
         ).firstOrNull()?.let { annotation ->
-            // If yes, we log its value
             Log.d("Clicked URL", annotation.item)
             mUriHandler.openUri(annotation.item)
         }
-    })
+    }, modifier = Modifier.padding(top = 24.dp))
 }
 
 @Preview(showBackground = true)
