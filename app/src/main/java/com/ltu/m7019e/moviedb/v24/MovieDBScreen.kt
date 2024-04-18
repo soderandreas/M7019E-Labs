@@ -128,6 +128,7 @@ fun TheMovieDBApp(
                             movieList = Movies().getMovies().filter { it.genres.contains(genre) },
                             onMovieListItemClicked = { movie ->
                                 viewModel.setSelectedMovie(movie)
+                                repeat(2) { navController.popBackStack() }
                                 navController.navigate(MovieDBScreen.Detail.name)
                             },
                             genre = foundGenre,
