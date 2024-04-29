@@ -12,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -68,8 +69,12 @@ fun MovieReviewsAndTrailersScreen(
     when (selectedMovieUiState) {
         is SelectedMovieUiState.Success -> {
             Column {
-
-                if (selectedMovieUiState.videos != null) {
+                if (!selectedMovieUiState.videos.isNullOrEmpty()) {
+                    Text(
+                        text = "Trailers and Videos",
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(8.dp)
+                    )
                     LazyRow {
                         items(selectedMovieUiState.videos) { video ->
                             MovieTrailersAndScenesCard(video)
@@ -77,7 +82,14 @@ fun MovieReviewsAndTrailersScreen(
                     }
                 }
 
-                if (selectedMovieUiState.reviews != null) {
+                Spacer(modifier = Modifier.size(16.dp))
+
+                if (!selectedMovieUiState.reviews.isNullOrEmpty()) {
+                    Text(
+                        text = "Reviews",
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(8.dp)
+                    )
                     LazyRow {
                         items(selectedMovieUiState.reviews) { review ->
                             MovieReviewCard(
@@ -132,13 +144,21 @@ fun MovieReviewCard(review: Review, modifier: Modifier = Modifier){
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieTrailersAndScenesCard(video: Video, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
     ) {
-        ExoPlayerView(video)
+        Column {
+            Text(
+                text = video.name,
+                style = MaterialTheme.typography.titleSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(8.dp)
+            )
+            ExoPlayerView(video)
+        }
     }
 }
 
