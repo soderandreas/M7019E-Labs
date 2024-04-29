@@ -2,8 +2,12 @@
     <string name="app_name">The Movie DB</string>
     <string name="movie_Detail">Movie Details</string>
     <string name="movie_Genre">Movie Genre</string>
+    <string name="movie_Review">Movie Reviews and Trailers/Videos</string>
     <string name="back_button">Back</string>
+    <string name="popular_movies">Popular Movies</string>
+    <string name="top_rated_movies">Top Rated Movies</string>
+    <string name="saved_movies">Saved Movies</string>
     <string name="imdb_link">https://imdb.com/title/</string>
     <string name="imdb">Go to IMDb Page</string>
-    <string name="official_Website">Official website(s): </string>
+    <string name="official_website">Official website(s): </string>
 </resources>

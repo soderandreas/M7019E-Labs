@@ -24,20 +24,44 @@ import coil.compose.AsyncImage
 import com.ltu.m7019e.moviedb.v24.model.Movie
 import com.ltu.m7019e.moviedb.v24.ui.theme.TheMovideDBV24Theme
 import com.ltu.m7019e.moviedb.v24.utils.Constants
+import com.ltu.m7019e.moviedb.v24.viewmodel.MovieListUiState
 
 @Composable
 fun MovieListScreen(
-    movieList: List<Movie>,
+    movieListUiState: MovieListUiState,
     onMovieListItemClicked: (Movie) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {
-        items(movieList) { movie ->
-            MovieListItemCard(
-                movie = movie,
-                onMovieListItemClicked,
-                modifier = Modifier.padding(8.dp)
-            )
+        when(movieListUiState) {
+            is MovieListUiState.Success -> {
+                items(movieListUiState.movies) { movie ->
+                    MovieListItemCard(
+                        movie = movie,
+                        onMovieListItemClicked,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
+            is MovieListUiState.Loading -> {
+                item {
+                    Text(
+                        text = "Loading...",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+
+            is MovieListUiState.Error -> {
+                item {
+                    Text(
+                        text = "Error: Something went wrong!",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
         }
     }
 }
@@ -101,9 +125,9 @@ fun MovieItemPreview() {
                 "/9xeEGUZjgiKlI69jwIOi0hjKUIk.jpg",
                 "2021-03-03",
                 "Long ago, in the fantasy world of Kumandra, humans and dragons lived together in harmony. But when an evil force threatened the land, the dragons sacrificed themselves to save humanity. Now, 500 years later, that same evil has returned and it’s up to a lone warrior, Raya, to track down the legendary last dragon to restore the fractured land and its divided people.",
-                listOf("Animation", "Family", "Fantasy", "Action", "Adventure"),
-                "https://movies.disney.com/raya-and-the-last-dragon",
-                "tt5109280"
+                // arrayOf("Animation", "Family", "Fantasy", "Action", "Adventure"),
+                //"https://movies.disney.com/raya-and-the-last-dragon",
+                //"tt5109280"
             ), {}
         )
     }
