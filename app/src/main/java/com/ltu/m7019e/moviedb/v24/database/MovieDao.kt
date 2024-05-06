@@ -4,19 +4,20 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.ltu.m7019e.moviedb.v24.model.Movie
 
 @Dao
-interface MovieDao {
-    @Query("SELECT * FROM favorite_movies")
-    suspend fun getFavoriteMovies(): List<Movie>
+abstract class MovieDao {
+    @Query("SELECT * FROM movies")
+    abstract suspend fun getFavoriteMovies(): List<Movie>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertFavoriteMovie(movie: Movie)
+    abstract suspend fun insertFavoriteMovie(movie: Movie)
 
-    @Query("SELECT * FROM favorite_movies WHERE id = :id")
-    suspend fun getMovie(id: Long): Movie
+    @Query("SELECT * FROM movies WHERE id = :id")
+    abstract suspend fun getMovie(id: Long): Movie
 
-    @Query("DELETE FROM favorite_movies WHERE id = :id")
-    suspend fun deleteFavoriteMovie(id: Long)
+    @Query("DELETE FROM movies WHERE id = :id")
+    abstract fun deleteFavoriteMovie(id: Long)
 }

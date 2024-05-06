@@ -1,5 +1,13 @@
 package com.ltu.m7019e.moviedb.v24.database
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.ltu.m7019e.moviedb.v24.model.Genre
 import com.ltu.m7019e.moviedb.v24.model.Movie
 import com.ltu.m7019e.moviedb.v24.model.MovieDetailsResponse
@@ -7,6 +15,8 @@ import com.ltu.m7019e.moviedb.v24.model.MovieResponse
 import com.ltu.m7019e.moviedb.v24.model.MovieReviewsResponse
 import com.ltu.m7019e.moviedb.v24.model.MovieVideosResponse
 import com.ltu.m7019e.moviedb.v24.network.MovieDBApiService
+import com.ltu.m7019e.moviedb.v24.worker.CheckConnectionWorker
+import java.util.concurrent.TimeUnit
 
 interface MoviesRepository {
     suspend fun getPopularMovies(): MovieResponse
@@ -51,7 +61,6 @@ interface SavedMovieRepository {
     suspend fun getMovie(id: Long): Movie
 
     suspend fun deleteMovie(movie: Movie)
-
 }
 
 class FavoriteMoviesRepository(private val movieDao: MovieDao) : SavedMovieRepository {
@@ -69,5 +78,42 @@ class FavoriteMoviesRepository(private val movieDao: MovieDao) : SavedMovieRepos
 
     override suspend fun deleteMovie(movie: Movie) {
         movieDao.deleteFavoriteMovie(movie.id)
+    }
+}
+
+interface ConnectionRepository {
+    // save information after losing connection
+    fun cacheInformation()
+    // checks if connection to internet has been reestablished
+    suspend fun checkConnection(): Boolean
+}
+
+class WorkManagerConnectionRepository(context: Context) : ConnectionRepository {
+    private val workManager = WorkManager.getInstance(context)
+    override fun cacheInformation() {
+        //workManager.cancelUniqueWork("testname")
+    }
+
+    override suspend fun checkConnection(): Boolean {
+        return isConnected()
+    }
+
+    private val connectivityManager = context.getSystemService(ConnectivityManager::class.java)
+
+    // https://medium.com/@meytataliti/obtaining-network-connection-info-with-flow-in-android-af2e6b760dfd
+    private fun isConnected(): Boolean {
+        // Network class represents one of the networks that the device is connected to.
+        val activeNetwork = connectivityManager.activeNetwork
+        return if (activeNetwork == null) {
+            false // if there is no active network, then simply no internet connection.
+        } else {
+            // NetworkCapabilities object contains information about properties of a network
+            val netCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+            (netCapabilities != null
+                    // indicates that the network is set up to access the internet
+                    && netCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    // indicates that the network provides actual access to the public internet when it is probed
+                    && netCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED))
+        }
     }
 }

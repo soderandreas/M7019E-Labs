@@ -1,6 +1,12 @@
 package com.ltu.m7019e.moviedb.v24.database
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.util.Log
+import androidx.core.content.ContextCompat.getSystemService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.ltu.m7019e.moviedb.v24.network.MovieDBApiService
 import com.ltu.m7019e.moviedb.v24.utils.Constants
@@ -12,6 +18,7 @@ import retrofit2.Retrofit
 interface AppContainer {
     val moviesRepository: MoviesRepository
     val savedMovieRepository: SavedMovieRepository
+    val connectionRepository: ConnectionRepository
 }
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
@@ -48,5 +55,9 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
 
     override val savedMovieRepository: SavedMovieRepository by lazy {
         FavoriteMoviesRepository(MovieDatabase.getDatabase(context).movieDao())
+    }
+
+    override val connectionRepository: ConnectionRepository by lazy {
+        WorkManagerConnectionRepository(context)
     }
 }

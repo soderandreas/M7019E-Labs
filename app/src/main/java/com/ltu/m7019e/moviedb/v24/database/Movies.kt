@@ -15,7 +15,7 @@ class Movies {
         "Crime" to "Crime films, in the broadest sense, is a film genre inspired by and analogous to the crime fiction literary genre. Films of this genre generally involve various aspects of crime and its detection. Stylistically, the genre may overlap and combine with many other genres, such as drama or gangster film, but also include comedy, and, in turn, is divided into many sub-genres, such as mystery, suspense or noir.",
     )
 
-    fun getMovies(): List<Movie> {
+    /* fun getMovies(): List<Movie> {
         return listOf<Movie>(
             Movie(
                 1,
@@ -73,5 +73,5 @@ class Movies {
                 //"tt9845564"
             ),
         )
-    }
+    }*/
 }

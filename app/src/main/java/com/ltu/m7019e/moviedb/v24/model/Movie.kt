@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 import java.io.Serial
 
 @Serializable
-@Entity(tableName = "favorite_movies")
+@Entity(tableName = "movies")
 data class Movie(
     @PrimaryKey
     @SerialName(value = "id")
