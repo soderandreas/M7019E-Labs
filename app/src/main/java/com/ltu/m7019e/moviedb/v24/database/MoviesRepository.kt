@@ -3,10 +3,9 @@ package com.ltu.m7019e.moviedb.v24.database
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.ExistingWorkPolicy
+import android.util.Log
+import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.ltu.m7019e.moviedb.v24.model.Genre
 import com.ltu.m7019e.moviedb.v24.model.Movie
@@ -15,25 +14,55 @@ import com.ltu.m7019e.moviedb.v24.model.MovieResponse
 import com.ltu.m7019e.moviedb.v24.model.MovieReviewsResponse
 import com.ltu.m7019e.moviedb.v24.model.MovieVideosResponse
 import com.ltu.m7019e.moviedb.v24.network.MovieDBApiService
-import com.ltu.m7019e.moviedb.v24.worker.CheckConnectionWorker
+import com.ltu.m7019e.moviedb.v24.worker.CachePopularMoviesWorker
+import com.ltu.m7019e.moviedb.v24.worker.CacheTopRatedMoviesWorker
+import com.ltu.m7019e.moviedb.v24.worker.ClearCacheWorker
 import java.util.concurrent.TimeUnit
 
 interface MoviesRepository {
     suspend fun getPopularMovies(): MovieResponse
     suspend fun getTopRatedMovies(): MovieResponse
+    suspend fun cachePopularMovies()
+    suspend fun cacheTopRatedMovies()
     suspend fun getGenreMovies(genre: Genre): MovieResponse
     suspend fun getMovieInformation(id: Long): MovieDetailsResponse
     suspend fun getMovieReviews(id: Long): MovieReviewsResponse
     suspend fun getMovieVideos(id: Long): MovieVideosResponse
 }
 
-class NetworkMoviesRepository(private val apiService: MovieDBApiService) : MoviesRepository {
+class NetworkMoviesRepository(context: Context, private val apiService: MovieDBApiService) : MoviesRepository {
+    private val workManager = WorkManager.getInstance(context)
+    val clearCacheBuilder = OneTimeWorkRequestBuilder<ClearCacheWorker>()
+        .setInitialDelay(0.5.toLong(), TimeUnit.SECONDS)
+
     override suspend fun getPopularMovies(): MovieResponse {
         return apiService.getPopularMovies()
     }
 
     override suspend fun getTopRatedMovies(): MovieResponse {
         return apiService.getTopRatedMovies()
+    }
+
+    override suspend fun cachePopularMovies() {
+        val cachePopMoviesBuilder = OneTimeWorkRequestBuilder<CachePopularMoviesWorker>()
+            .setInitialDelay(0.5.toLong(), TimeUnit.SECONDS)
+            .build()
+
+        workManager
+            .beginWith(clearCacheBuilder.build())
+            .then(cachePopMoviesBuilder)
+            .enqueue()
+    }
+
+    override suspend fun cacheTopRatedMovies() {
+        val cacheTopMoviesBuilder = OneTimeWorkRequestBuilder<CacheTopRatedMoviesWorker>()
+            .setInitialDelay(0.5.toLong(), TimeUnit.SECONDS)
+            .build()
+
+        workManager
+            .beginWith(clearCacheBuilder.build())
+            .then(cacheTopMoviesBuilder)
+            .enqueue()
     }
 
     override suspend fun getGenreMovies(genre: Genre): MovieResponse {
@@ -61,6 +90,10 @@ interface SavedMovieRepository {
     suspend fun getMovie(id: Long): Movie
 
     suspend fun deleteMovie(movie: Movie)
+
+    suspend fun getCache(): List<Movie>
+
+    suspend fun cacheClear()
 }
 
 class FavoriteMoviesRepository(private val movieDao: MovieDao) : SavedMovieRepository {
@@ -69,7 +102,7 @@ class FavoriteMoviesRepository(private val movieDao: MovieDao) : SavedMovieRepos
     }
 
     override suspend fun insertMovie(movie: Movie) {
-        movieDao.insertFavoriteMovie(movie)
+        movieDao.insertMovie(movie)
     }
 
     override suspend fun getMovie(id: Long): Movie {
@@ -79,9 +112,17 @@ class FavoriteMoviesRepository(private val movieDao: MovieDao) : SavedMovieRepos
     override suspend fun deleteMovie(movie: Movie) {
         movieDao.deleteFavoriteMovie(movie.id)
     }
+
+    override suspend fun getCache(): List<Movie> {
+        return movieDao.getCachedMovies()
+    }
+
+    override suspend fun cacheClear() {
+        movieDao.deleteCache()
+    }
 }
 
-interface ConnectionRepository {
+/*interface ConnectionRepository {
     // save information after losing connection
     fun cacheInformation()
     // checks if connection to internet has been reestablished
@@ -116,4 +157,4 @@ class WorkManagerConnectionRepository(context: Context) : ConnectionRepository {
                     && netCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED))
         }
     }
-}
+}*/

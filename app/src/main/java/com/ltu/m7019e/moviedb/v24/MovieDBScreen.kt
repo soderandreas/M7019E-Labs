@@ -18,9 +18,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -33,12 +35,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ltu.m7019e.moviedb.v24.database.Movies
+import com.ltu.m7019e.moviedb.v24.network.NetworkStatus
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieDetailScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieGenreScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieListGridScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieListScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieReviewsAndTrailersScreen
 import com.ltu.m7019e.moviedb.v24.viewmodel.MovieDBViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 
 enum class MovieDBScreen(@StringRes val title: Int) {
     List(title = R.string.app_name),
@@ -126,6 +131,20 @@ fun MovieDBAppBar(
     )
 }
 
+@ExperimentalCoroutinesApi
+@Composable
+fun connectivityState(movieDBViewModel: MovieDBViewModel): State<NetworkStatus> {
+    // Creates a State<ConnectionState> with current connectivity state as initial value
+    return produceState(initialValue = movieDBViewModel.currentConnectivityState()) {
+        // In a coroutine, can make suspend calls
+        movieDBViewModel.observeConnectivityState().collect {
+
+            value = movieDBViewModel.currentConnectivityState()
+        }
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun TheMovieDBApp(
     navController: NavHostController = rememberNavController()
@@ -138,6 +157,14 @@ fun TheMovieDBApp(
 
     val movieDBViewModel: MovieDBViewModel = viewModel(factory = MovieDBViewModel.Factory)
 
+    val connection by connectivityState(movieDBViewModel)
+
+    Log.d("NETWORK TEST", "CURRENT STATUS: $connection")
+
+    if (connection == NetworkStatus.Connected) {
+        movieDBViewModel.updateListUiState()
+    }
+
     Scaffold(
         topBar = {
             MovieDBAppBar(
@@ -149,7 +176,6 @@ fun TheMovieDBApp(
         }
     ) { innerPadding ->
         // val uiState by viewModel.uiState.collectAsState()
-
         NavHost(
             navController = navController,
             startDestination = MovieDBScreen.List.name,
@@ -159,7 +185,7 @@ fun TheMovieDBApp(
         ) {
             composable(route = MovieDBScreen.List.name) {
                 MovieListGridScreen(
-                    movieListUiState = movieDBViewModel.movieListUiState,
+                    movieDBViewModel = movieDBViewModel,
                     onMovieListItemClicked = { movie ->
                         movieDBViewModel.setSelectedMovie(movie)
                         navController.navigate(MovieDBScreen.Detail.name)

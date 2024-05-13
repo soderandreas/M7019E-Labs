@@ -19,19 +19,23 @@ data class Movie(
     var id: Long = 0L,
 
     @SerialName(value = "title")
-    var title: String,
+    var title: String = "",
 
     @SerialName(value = "poster_path")
-    var posterPath: String,
+    var posterPath: String = "",
 
     @SerialName(value = "backdrop_path")
-    var backdropPath: String,
+    var backdropPath: String = "",
 
     @SerialName(value = "release_date")
-    var releaseDate: String,
+    var releaseDate: String = "",
 
     @SerialName(value = "overview")
-    var overview: String,
+    var overview: String = "",
+
+    var favorite: Boolean = false,
+
+    var cache: Boolean = false
 )
 
 @Serializable

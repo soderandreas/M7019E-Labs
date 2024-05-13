@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat.getSystemService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.ltu.m7019e.moviedb.v24.network.MovieDBApiService
+import com.ltu.m7019e.moviedb.v24.network.NetworkConnectivityService
 import com.ltu.m7019e.moviedb.v24.utils.Constants
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -18,7 +19,8 @@ import retrofit2.Retrofit
 interface AppContainer {
     val moviesRepository: MoviesRepository
     val savedMovieRepository: SavedMovieRepository
-    val connectionRepository: ConnectionRepository
+    /*val connectionRepository: ConnectionRepository*/
+    val networkConnectivityService: NetworkConnectivityService
 }
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
@@ -31,6 +33,7 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
 
     val movieDBJson = Json {
         ignoreUnknownKeys = true
+        coerceInputValues = true
     }
 
     private val retrofit: Retrofit = Retrofit.Builder()
@@ -50,14 +53,18 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     }
 
     override val moviesRepository: MoviesRepository by lazy {
-        NetworkMoviesRepository(retrofitService)
+        NetworkMoviesRepository(context, retrofitService)
     }
 
     override val savedMovieRepository: SavedMovieRepository by lazy {
         FavoriteMoviesRepository(MovieDatabase.getDatabase(context).movieDao())
     }
 
-    override val connectionRepository: ConnectionRepository by lazy {
+    /*override val connectionRepository: ConnectionRepository by lazy {
         WorkManagerConnectionRepository(context)
+    }*/
+
+    override val networkConnectivityService: NetworkConnectivityService by lazy {
+        NetworkConnectivityService(context)
     }
 }

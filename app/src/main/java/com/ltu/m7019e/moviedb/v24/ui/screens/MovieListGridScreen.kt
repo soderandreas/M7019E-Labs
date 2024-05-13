@@ -1,5 +1,6 @@
 package com.ltu.m7019e.moviedb.v24.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,18 +17,27 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.ltu.m7019e.moviedb.v24.model.Movie
+import com.ltu.m7019e.moviedb.v24.network.NetworkConnectivityService
+import com.ltu.m7019e.moviedb.v24.network.NetworkStatus
 import com.ltu.m7019e.moviedb.v24.utils.Constants
 import com.ltu.m7019e.moviedb.v24.utils.Constants.POSTER_IMAGE_HQ_WIDTH
+import com.ltu.m7019e.moviedb.v24.viewmodel.MovieDBViewModel
 import com.ltu.m7019e.moviedb.v24.viewmodel.MovieListUiState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun MovieListGridScreen(
-    movieListUiState: MovieListUiState,
+    movieDBViewModel: MovieDBViewModel,
     onMovieListItemClicked: (Movie) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -35,7 +45,7 @@ fun MovieListGridScreen(
         columns = GridCells.Fixed(2),
         modifier = modifier
     ) {
-        when(movieListUiState) {
+        when(val movieListUiState = movieDBViewModel.movieListUiState) {
             is MovieListUiState.Success -> {
                 items(movieListUiState.movies) { movie ->
                     MovieGridItemCard(

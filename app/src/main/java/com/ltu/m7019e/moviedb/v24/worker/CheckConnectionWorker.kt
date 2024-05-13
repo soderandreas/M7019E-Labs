@@ -15,10 +15,10 @@ class CheckConnectionWorker(
 ) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
         Log.d(TAG, "GET HERE?")
-        if (isConnected()) {
-            return Result.success()
+        return if (isConnected()) {
+            Result.success()
         } else {
-            return Result.retry()
+            Result.retry()
         }
     }
 
