@@ -40,6 +40,7 @@ import java.net.UnknownHostException
 enum class MovieListName {
     GetPopular,
     GetTopRated,
+    GetSaved
 }
 
 sealed interface MovieListUiState {
@@ -83,7 +84,7 @@ class MovieDBViewModel(
 
     private data class CachedMovieList(
         var listName: MovieListName? = null,
-        var moviesList: List<Movie> = listOf()
+        //var moviesList: List<Movie> = listOf()
     )
 
     private var lastSelectedMovieList = MovieListName.GetPopular
@@ -98,6 +99,7 @@ class MovieDBViewModel(
         when(lastSelectedMovieList){
             MovieListName.GetPopular -> getPopularMovies()
             MovieListName.GetTopRated -> getTopRatedMovies()
+            MovieListName.GetSaved -> getSavedMovies()
         }
     }
 
@@ -121,7 +123,7 @@ class MovieDBViewModel(
                 movieListUiState = try {
                     //MovieListUiState.Success(moviesRepository.getTopRatedMovies().results)
                     val movieList = moviesRepository.getTopRatedMovies()
-                    cacheForList.moviesList = movieList.results
+                    //cacheForList.moviesList = movieList.results
                     cacheForList.listName = MovieListName.GetTopRated
                     moviesRepository.cacheTopRatedMovies()
                     MovieListUiState.Success(movieList.results)
@@ -151,7 +153,7 @@ class MovieDBViewModel(
                 movieListUiState = try {
                     //MovieListUiState.Success(moviesRepository.getPopularMovies().results)
                     val movieList = moviesRepository.getPopularMovies()
-                    cacheForList.moviesList = movieList.results
+                    //cacheForList.moviesList = movieList.results
                     cacheForList.listName = MovieListName.GetPopular
                     moviesRepository.cachePopularMovies()
                     MovieListUiState.Success(movieList.results)
@@ -172,6 +174,7 @@ class MovieDBViewModel(
 
     fun getSavedMovies() {
         viewModelScope.launch {
+            lastSelectedMovieList = MovieListName.GetSaved
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
                 MovieListUiState.Success(savedMovieRepository.getSavedMovies())
@@ -228,7 +231,11 @@ class MovieDBViewModel(
             } catch (e: UnknownHostException) {
                 SelectedMovieUiState.Success(
                     movie,
-                    savedMovieRepository.getMovie(movie.id).favorite,
+                    try {
+                        savedMovieRepository.getMovie(movie.id).favorite
+                    } catch (e : Exception) {
+                        false
+                    },
                     null,
                     null,
                     null,
