@@ -32,7 +32,7 @@ interface MoviesRepository {
 
 class NetworkMoviesRepository(context: Context, private val apiService: MovieDBApiService) : MoviesRepository {
     private val workManager = WorkManager.getInstance(context)
-    val clearCacheBuilder = OneTimeWorkRequestBuilder<ClearCacheWorker>()
+    private val clearCacheBuilder = OneTimeWorkRequestBuilder<ClearCacheWorker>()
         .setInitialDelay(0.5.toLong(), TimeUnit.SECONDS)
 
     override suspend fun getPopularMovies(): MovieResponse {
@@ -121,40 +121,3 @@ class FavoriteMoviesRepository(private val movieDao: MovieDao) : SavedMovieRepos
         movieDao.deleteCache()
     }
 }
-
-/*interface ConnectionRepository {
-    // save information after losing connection
-    fun cacheInformation()
-    // checks if connection to internet has been reestablished
-    suspend fun checkConnection(): Boolean
-}
-
-class WorkManagerConnectionRepository(context: Context) : ConnectionRepository {
-    private val workManager = WorkManager.getInstance(context)
-    override fun cacheInformation() {
-        //workManager.cancelUniqueWork("testname")
-    }
-
-    override suspend fun checkConnection(): Boolean {
-        return isConnected()
-    }
-
-    private val connectivityManager = context.getSystemService(ConnectivityManager::class.java)
-
-    // https://medium.com/@meytataliti/obtaining-network-connection-info-with-flow-in-android-af2e6b760dfd
-    private fun isConnected(): Boolean {
-        // Network class represents one of the networks that the device is connected to.
-        val activeNetwork = connectivityManager.activeNetwork
-        return if (activeNetwork == null) {
-            false // if there is no active network, then simply no internet connection.
-        } else {
-            // NetworkCapabilities object contains information about properties of a network
-            val netCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
-            (netCapabilities != null
-                    // indicates that the network is set up to access the internet
-                    && netCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                    // indicates that the network provides actual access to the public internet when it is probed
-                    && netCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED))
-        }
-    }
-}*/

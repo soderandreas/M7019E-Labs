@@ -81,9 +81,6 @@ class MovieDBViewModel(
     var selectedGenreUiState: SelectedGenreUiState by mutableStateOf(SelectedGenreUiState.Loading)
         private set
 
-    var currentNetworkState: NetworkStatus = NetworkStatus.Unknown
-        private set
-
     private data class CachedMovieList(
         var listName: MovieListName? = null,
         var moviesList: List<Movie> = listOf()
@@ -219,7 +216,11 @@ class MovieDBViewModel(
             selectedMovieUiState = try {
                 SelectedMovieUiState.Success(
                     movie,
-                    savedMovieRepository.getMovie(movie.id).favorite,
+                    try {
+                        savedMovieRepository.getMovie(movie.id).favorite
+                    } catch (e : Exception) {
+                        false
+                    },
                     moviesRepository.getMovieInformation(movie.id),
                     moviesRepository.getMovieReviews(movie.id).results,
                     moviesRepository.getMovieVideos(movie.id).videos,
@@ -259,12 +260,10 @@ class MovieDBViewModel(
                 val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MovieDBApplication)
                 val moviesRepository = application.container.moviesRepository
                 val savedMovieRepository = application.container.savedMovieRepository
-                //val connectionRepository = application.container.connectionRepository
                 val networkConnectivityService = application.container.networkConnectivityService
                 MovieDBViewModel(
                     moviesRepository = moviesRepository,
                     savedMovieRepository = savedMovieRepository,
-                    /*connectionRepository = connectionRepository,*/
                     networkConnectivityService = networkConnectivityService
                 )
             }

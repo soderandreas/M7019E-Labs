@@ -19,7 +19,6 @@ import retrofit2.Retrofit
 interface AppContainer {
     val moviesRepository: MoviesRepository
     val savedMovieRepository: SavedMovieRepository
-    /*val connectionRepository: ConnectionRepository*/
     val networkConnectivityService: NetworkConnectivityService
 }
 
@@ -59,10 +58,6 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     override val savedMovieRepository: SavedMovieRepository by lazy {
         FavoriteMoviesRepository(MovieDatabase.getDatabase(context).movieDao())
     }
-
-    /*override val connectionRepository: ConnectionRepository by lazy {
-        WorkManagerConnectionRepository(context)
-    }*/
 
     override val networkConnectivityService: NetworkConnectivityService by lazy {
         NetworkConnectivityService(context)

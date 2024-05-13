@@ -19,7 +19,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -34,16 +33,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.ltu.m7019e.moviedb.v24.database.Movies
 import com.ltu.m7019e.moviedb.v24.network.NetworkStatus
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieDetailScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieGenreScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieListGridScreen
-import com.ltu.m7019e.moviedb.v24.ui.screens.MovieListScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieReviewsAndTrailersScreen
 import com.ltu.m7019e.moviedb.v24.viewmodel.MovieDBViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 
 enum class MovieDBScreen(@StringRes val title: Int) {
     List(title = R.string.app_name),

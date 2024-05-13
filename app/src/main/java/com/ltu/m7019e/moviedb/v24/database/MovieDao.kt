@@ -40,9 +40,6 @@ abstract class MovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertNewMovie(movie: Movie)
 
-    //@Insert(onConflict = OnConflictStrategy.IGNORE)
-    //abstract suspend fun insertFavoriteMovie(movie: Movie)
-
     @Transaction
     open suspend fun deleteFavoriteMovie(id: Long) {
         // need to check if movie is in cache

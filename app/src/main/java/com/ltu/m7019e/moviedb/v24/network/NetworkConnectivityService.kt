@@ -25,7 +25,6 @@ sealed class NetworkStatus {
 class NetworkConnectivityService (
     context: Context
 ) {
-    var status: NetworkStatus = NetworkStatus.Unknown
     val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
     val currentConnectivityState: NetworkStatus
@@ -93,46 +92,4 @@ class NetworkConnectivityService (
             }
         }
     }
-
-    /*private val networkCallback = object : ConnectivityManager.NetworkCallback() {
-        // network is available for use
-        override fun onAvailable(network: Network) {
-            Log.d("onAvailable", "network is available")
-            status = NetworkStatus.Connected
-            super.onAvailable(network)
-        }
-
-        // Network capabilities have changed for the network
-        override fun onCapabilitiesChanged(
-            network: Network,
-            networkCapabilities: NetworkCapabilities
-        ) {
-            Log.d("onCapabilitiesChanged", "network capabilities changed")
-            super.onCapabilitiesChanged(network, networkCapabilities)
-            val unmetered = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-        }
-
-        // lost network connection
-        override fun onLost(network: Network) {
-            Log.d("onLost", "network is lost")
-            status = NetworkStatus.Disconnected
-            super.onLost(network)
-        }
-    }
-
-    val networkRequest = NetworkRequest.Builder()
-        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-        .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-        .build()
-
-    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-    init {
-        connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
-    }
-
-    fun getStatus(): NetworkStatus {
-        return status
-    }*/
 }

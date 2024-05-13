@@ -3,7 +3,6 @@ package com.ltu.m7019e.moviedb.v24.ui.screens
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -15,19 +14,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextDecoration
-import com.ltu.m7019e.moviedb.v24.database.Movies
 import com.ltu.m7019e.moviedb.v24.model.Movie
-import com.ltu.m7019e.moviedb.v24.ui.theme.TheMovideDBV24Theme
 import com.ltu.m7019e.moviedb.v24.viewmodel.SelectedGenreUiState
 import kotlin.math.roundToInt
 
@@ -116,21 +110,7 @@ fun MovieGenreScreen(
     }
 }
 
-// Old Code
-/*@Composable
-fun MovieGenreDescription (
-    genreText: String,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = genreText,
-        fontStyle = FontStyle.Italic,
-        color = Color.DarkGray,
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
+/*@Preview(showBackground = true)
 @Composable
 fun MovieScreenPreview() {
     TheMovideDBV24Theme {
