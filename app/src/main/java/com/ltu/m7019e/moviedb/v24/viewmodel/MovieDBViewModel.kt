@@ -190,60 +190,77 @@ class MovieDBViewModel(
         viewModelScope.launch {
             movie.favorite = true
             savedMovieRepository.insertMovie(movie)
-            selectedMovieUiState = SelectedMovieUiState.Success(
-                movie,
-                true,
-                moviesRepository.getMovieInformation(movie.id),
-                moviesRepository.getMovieReviews(movie.id).results,
-                moviesRepository.getMovieVideos(movie.id).videos,
-            )
+            if (networkConnectivityService.currentConnectivityState == NetworkStatus.Connected){
+                selectedMovieUiState = SelectedMovieUiState.Success(
+                    movie,
+                    true,
+                    moviesRepository.getMovieInformation(movie.id),
+                    moviesRepository.getMovieReviews(movie.id).results,
+                    moviesRepository.getMovieVideos(movie.id).videos,
+                )
+            } else {
+                selectedMovieUiState = SelectedMovieUiState.Success(
+                    movie,
+                    true,
+                    null,
+                    null,
+                    null,
+                    /*moviesRepository.getMovieInformation(movie.id),
+                    moviesRepository.getMovieReviews(movie.id).results,
+                    moviesRepository.getMovieVideos(movie.id).videos,*/
+                )
+            }
         }
     }
 
     fun deleteMovie(movie: Movie) {
         viewModelScope.launch {
             savedMovieRepository.deleteMovie(movie)
-            selectedMovieUiState = SelectedMovieUiState.Success(
-                movie,
-                false,
-                moviesRepository.getMovieInformation(movie.id),
-                moviesRepository.getMovieReviews(movie.id).results,
-                moviesRepository.getMovieVideos(movie.id).videos,
-            )
+            if (networkConnectivityService.currentConnectivityState == NetworkStatus.Connected){
+                selectedMovieUiState = SelectedMovieUiState.Success(
+                    movie,
+                    false,
+                    moviesRepository.getMovieInformation(movie.id),
+                    moviesRepository.getMovieReviews(movie.id).results,
+                    moviesRepository.getMovieVideos(movie.id).videos,
+                )
+            } else {
+                selectedMovieUiState = SelectedMovieUiState.Success(
+                    movie,
+                    false,
+                    null,
+                    null,
+                    null,
+                )
+            }
         }
     }
 
     fun setSelectedMovie(movie: Movie) {
         viewModelScope.launch {
             selectedMovieUiState = SelectedMovieUiState.Loading
-            selectedMovieUiState = try {
-                SelectedMovieUiState.Success(
+            if (networkConnectivityService.currentConnectivityState == NetworkStatus.Connected){
+                selectedMovieUiState = try {
+                    SelectedMovieUiState.Success(
+                        movie,
+                        movie.favorite,
+                        moviesRepository.getMovieInformation(movie.id),
+                        moviesRepository.getMovieReviews(movie.id).results,
+                        moviesRepository.getMovieVideos(movie.id).videos,
+                    )
+                } catch (e: HttpException) {
+                    SelectedMovieUiState.Error
+                } catch (e: IOException) {
+                    SelectedMovieUiState.Error
+                }
+            } else {
+                selectedMovieUiState = SelectedMovieUiState.Success(
                     movie,
-                    try {
-                        savedMovieRepository.getMovie(movie.id).favorite
-                    } catch (e : Exception) {
-                        false
-                    },
-                    moviesRepository.getMovieInformation(movie.id),
-                    moviesRepository.getMovieReviews(movie.id).results,
-                    moviesRepository.getMovieVideos(movie.id).videos,
-                )
-            } catch (e: UnknownHostException) {
-                SelectedMovieUiState.Success(
-                    movie,
-                    try {
-                        savedMovieRepository.getMovie(movie.id).favorite
-                    } catch (e : Exception) {
-                        false
-                    },
+                    true,
                     null,
                     null,
                     null,
                 )
-            } catch (e: HttpException) {
-                SelectedMovieUiState.Error
-            } catch (e: IOException) {
-                SelectedMovieUiState.Error
             }
         }
     }

@@ -40,6 +40,7 @@ import com.ltu.m7019e.moviedb.v24.R
 import com.ltu.m7019e.moviedb.v24.model.Genre
 import com.ltu.m7019e.moviedb.v24.model.Movie
 import com.ltu.m7019e.moviedb.v24.model.MovieDetailsResponse
+import com.ltu.m7019e.moviedb.v24.network.NetworkStatus
 import com.ltu.m7019e.moviedb.v24.ui.theme.TheMovideDBV24Theme
 import com.ltu.m7019e.moviedb.v24.utils.Constants
 import com.ltu.m7019e.moviedb.v24.viewmodel.MovieDBViewModel
@@ -52,17 +53,18 @@ fun MovieDetailScreen(
     onReviewItemClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val selectedMovieUiState = movieDBViewModel.selectedMovieUiState
-    when (selectedMovieUiState) {
+    when (val selectedMovieUiState = movieDBViewModel.selectedMovieUiState) {
         is SelectedMovieUiState.Success -> {
             Column {
-                Box {
-                    AsyncImage(
-                        model = Constants.BACKDROP_IMAGE_BASE_URL + Constants.BACKDROP_IMAGE_WIDTH + selectedMovieUiState.movie.backdropPath,
-                        contentDescription = selectedMovieUiState.movie.title,
-                        modifier = modifier,
-                        contentScale = ContentScale.Crop
-                    )
+                if (movieDBViewModel.currentConnectivityState() == NetworkStatus.Connected) {
+                    Box {
+                        AsyncImage(
+                            model = Constants.BACKDROP_IMAGE_BASE_URL + Constants.BACKDROP_IMAGE_WIDTH + selectedMovieUiState.movie.backdropPath,
+                            contentDescription = selectedMovieUiState.movie.title,
+                            modifier = modifier,
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 }
                 Text(
                     text = selectedMovieUiState.movie.title,
